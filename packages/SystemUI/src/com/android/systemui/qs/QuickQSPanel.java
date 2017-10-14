@@ -198,6 +198,14 @@ public class QuickQSPanel extends QSPanel {
     }
 
     @Override
+    public void onTuningChanged(String key, String newValue) {
+        if (QS_SHOW_BRIGHTNESS.equals(key)) {
+        if (QS_SHOW_BRIGHTNESS_SLIDER.equals(key)) {
+            // No Brightness or Tooltip for you!
+            super.onTuningChanged(key, "0");
+        }
+
+    @Override
     public void setTiles(Collection<QSTile> tiles) {
         ArrayList<QSTile> quickTiles = new ArrayList<>();
         for (QSTile tile : tiles) {
