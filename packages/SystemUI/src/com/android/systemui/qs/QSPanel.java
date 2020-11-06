@@ -78,6 +78,8 @@ import com.android.systemui.settings.BrightnessController;
 import com.android.systemui.settings.ToggleSliderView;
 import com.android.systemui.statusbar.policy.BrightnessMirrorController;
 import com.android.systemui.statusbar.policy.BrightnessMirrorController.BrightnessMirrorListener;
+import com.android.systemui.tuner.TunerService;
+import com.android.systemui.tuner.TunerService.Tunable;
 import com.android.systemui.util.animation.DisappearParameters;
 
 import java.io.FileDescriptor;
@@ -100,7 +102,6 @@ public class QSPanel extends LinearLayout implements Callback, BrightnessMirrorL
                                Settings.Secure.QS_SHOW_BRIGHTNESS_SLIDER;
     public static final String QS_SHOW_HEADER = "qs_show_header";
     public static final String QS_BRIGHTNESS_POSITION_BOTTOM = "qs_brightness_position_bottom";
-    public static final String QS_SHOW_AUTO_BRIGHTNESS = "qs_show_auto_brightness";
 
     private static final String TAG = "QSPanel";
 
@@ -484,13 +485,11 @@ public class QSPanel extends LinearLayout implements Callback, BrightnessMirrorL
 
     @Override
     public void onTuningChanged(String key, String newValue) {
-        if (QS_SHOW_BRIGHTNESS.equals(key) && mBrightnessView != null) {
         if (QS_SHOW_AUTO_BRIGHTNESS.equals(key) && mIsAutomaticBrightnessAvailable) {
             updateViewVisibilityForTuningValue(mAutoBrightnessView, newValue);
         } else if (QS_SHOW_BRIGHTNESS_SLIDER.equals(key) && mBrightnessView != null) {
             updateViewVisibilityForTuningValue(mBrightnessView, newValue);
         }
-      }
     }
 
     private int getBrightnessViewPositionBottom() {
@@ -507,23 +506,8 @@ public class QSPanel extends LinearLayout implements Callback, BrightnessMirrorL
         return 0;
     }
 
-    public void updateViewVisibilityForTuningValue(boolean visible) {
-        if (mBrightnessView == null || mBrightnessPlaceholder == null) {
-            return;
-        }
-        if (visible) {
-            mBrightnessVisible = true;
-            mBrightnessView.setVisibility(VISIBLE);
-            if (!mBrightnessBottom) {
-                mBrightnessPlaceholder.setVisibility(View.GONE);
-            } else {
-                mBrightnessPlaceholder.setVisibility(View.VISIBLE);
-            }
-        } else {
-            mBrightnessVisible = false;
-            mBrightnessView.setVisibility(GONE);
-            mBrightnessPlaceholder.setVisibility(View.VISIBLE);
-        }
+    private void updateViewVisibilityForTuningValue(View view, @Nullable String newValue) {
+        view.setVisibility(TunerService.parseIntegerSwitch(newValue, true) ? VISIBLE : GONE);
     }
 
     private void updateBrightnessSliderPosition() {
